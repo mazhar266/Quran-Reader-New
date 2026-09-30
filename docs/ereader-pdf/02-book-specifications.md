@@ -61,6 +61,11 @@ Fonts that are not page-specific cannot stretch calligraphically; forced justifi
 4. Reflow: browser justification, last line of each paragraph left ragged (default behaviour).
 5. Kashida (tatweel insertion) is **not** used: it alters the Quranic text stream and the fonts' kashida glyphs are not designed for automatic insertion. Revisit only with a font that ships proper justification alternates.
 
+> **Superseded (05 §2).** The generated books fill lines with kashida exactly as the app does, with
+> measured tatweel widths and no insertion inside lam-alef or the name of Allah. On the device this
+> reads like the printed mushaf instead of leaving gaps or ragged lines; the cost is that the PDF text
+> layer contains the inserted tatweels.
+
 ## 5. Front matter and navigation
 
 - Title screen: mushaf name (Arabic and English), riwayah, edition/source line (e.g. "King Fahd Glorious Quran Printing Complex, Hafs Uthmanic Script v2.2, current Madinah edition"), generation date and tool version.

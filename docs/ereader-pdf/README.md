@@ -8,6 +8,7 @@ Second document series. Goal: produce PDF mushafs that read well on **6-inch e-i
 | [02-book-specifications.md](02-book-specifications.md) | The catalogue of books to generate, page anatomy, front matter, outline, naming, sizes, licensing |
 | [03-generation-pipeline.md](03-generation-pipeline.md) | Toolchain (HTML/CSS + headless Chrome), scripts, algorithms per mode, post-processing, checks |
 | [04-qa-and-devices.md](04-qa-and-devices.md) | QA checklist, device testing matrix, transfer methods, known reader quirks |
+| [05-generated-books.md](05-generated-books.md) | **The books as built** by `tools/ereader/`: files, sizes, line filling, verification |
 | [images/](images/) | 300 ppi renders of the prototype pages produced while writing this series |
 
 ## Findings in one screen
