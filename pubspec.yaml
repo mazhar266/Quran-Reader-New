@@ -1,0 +1,72 @@
+name: quran_reader
+description: "Quran Reader: read the Quran page by page in several mushafs."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.0.2
+  intl: any
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  shared_preferences: ^2.5.5
+  sqlite3: ^3.7.0
+  wakelock_plus: ^1.8.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+hooks:
+  user_defines:
+    sqlite3:
+      # Android and iOS bundle the checksummed SQLite build of package:sqlite3.
+      # On Linux (host tests, desktop) Flutter already links the system SQLite
+      # through GTK, so use that one.
+      source:
+        linux: system
+        default: sqlite3
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/db/quran_reader.db
+
+  fonts:
+    - family: KFGQPC Hafs
+      fonts:
+        - asset: assets/fonts/KFGQPC-Hafs.ttf
+    - family: KFGQPC Warsh
+      fonts:
+        - asset: assets/fonts/KFGQPC-Warsh.ttf
+    - family: KFGQPC Qaloun
+      fonts:
+        - asset: assets/fonts/KFGQPC-Qaloun.ttf
+    - family: KFGQPC Douri
+      fonts:
+        - asset: assets/fonts/KFGQPC-Douri.ttf
+    - family: KFGQPC Shuba
+      fonts:
+        - asset: assets/fonts/KFGQPC-Shuba.ttf
+    - family: KFGQPC Sousi
+      fonts:
+        - asset: assets/fonts/KFGQPC-Sousi.ttf
+    - family: AlQuran IndoPak
+      fonts:
+        - asset: assets/fonts/AlQuranIndoPak.ttf
+    - family: SurahNameV2
+      fonts:
+        - asset: assets/fonts/SurahNameV2.ttf
+    - family: QuranCommon
+      fonts:
+        - asset: assets/fonts/QuranCommon.ttf

@@ -1,0 +1,152 @@
+{
+  "@@locale": "en",
+  "appTitle": "Quran Reader",
+  "chooseMushaf": "Choose a mushaf",
+  "chooseMushafHint": "Each mushaf remembers its own reading position.",
+  "continueReading": "Continue reading",
+  "pageN": "Page {page}",
+  "@pageN": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "pageOf": "Page {page} of {pages}",
+  "@pageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "juzN": "Juz {juz}",
+  "@juzN": {
+    "placeholders": {
+      "juz": {
+        "type": "int"
+      }
+    }
+  },
+  "pagesAndLines": "{pages} pages · {lines} lines",
+  "@pagesAndLines": {
+    "placeholders": {
+      "pages": {
+        "type": "int"
+      },
+      "lines": {
+        "type": "int"
+      }
+    }
+  },
+  "ayahCount": "Ayahs: {count}",
+  "@ayahCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRead": "Last read: page {page}",
+  "@lastRead": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "notStarted": "Not opened yet",
+  "current": "Current",
+  "read": "Read",
+  "changeMushaf": "Change mushaf",
+  "mushafInfo": "About this mushaf",
+  "edition": "Edition",
+  "source": "Source",
+  "goTo": "Go to",
+  "surahs": "Surahs",
+  "juzList": "Juz",
+  "page": "Page",
+  "goToPageHint": "Page number (1 – {pages})",
+  "@goToPageHint": {
+    "placeholders": {
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "invalidPage": "Enter a page between 1 and {pages}",
+  "@invalidPage": {
+    "placeholders": {
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "go": "Go",
+  "cancel": "Cancel",
+  "bookmarks": "Bookmarks",
+  "noBookmarks": "No bookmarks yet. While reading, tap the bookmark button to mark a page, or long-press a line to mark an ayah.",
+  "bookmarkPage": "Bookmark this page",
+  "removePageBookmark": "Remove page bookmark",
+  "bookmarkAdded": "Bookmark added",
+  "bookmarkRemoved": "Bookmark removed",
+  "bookmarkAyah": "Bookmark ayah {surah}:{ayah}",
+  "@bookmarkAyah": {
+    "placeholders": {
+      "surah": {
+        "type": "int"
+      },
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "ayahRef": "Ayah {surah}:{ayah}",
+  "@ayahRef": {
+    "placeholders": {
+      "surah": {
+        "type": "int"
+      },
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "ayahsOnLine": "Ayahs on this line",
+  "allMushafs": "All mushafs",
+  "delete": "Delete",
+  "settings": "Settings",
+  "pageTheme": "Page colour",
+  "themeLight": "Light",
+  "themeSepia": "Sepia",
+  "themeDark": "Dark",
+  "themeSystem": "Follow system",
+  "keepScreenOn": "Keep the screen on while reading",
+  "pageFit": "Page fit",
+  "fitPage": "Whole page",
+  "fitPageHint": "All lines fit on the screen",
+  "fitWidth": "Full width",
+  "fitWidthHint": "Largest text, scroll if the page is taller than the screen",
+  "twoPages": "Two pages side by side in landscape",
+  "showPageInfo": "Show surah, juz and page number",
+  "language": "Language",
+  "languageSystem": "System language",
+  "about": "About",
+  "aboutBody": "Quran Reader shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.",
+  "sources": "Sources and credits",
+  "fonts": "Fonts",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "loadError": "Could not open the Quran data.",
+  "menu": "Menu",
+  "reader": "Reader"
+}
