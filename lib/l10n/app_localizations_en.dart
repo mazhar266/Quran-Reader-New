@@ -212,4 +212,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reader => 'Reader';
+
+  @override
+  String get kashida => 'Fill lines by elongating letters (kashida)';
+
+  @override
+  String get kashidaHint => 'As in printed mushafs. Off: lines are filled with wider spaces.';
 }

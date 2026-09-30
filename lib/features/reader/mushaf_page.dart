@@ -37,6 +37,7 @@ class MushafPageView extends StatelessWidget {
     required this.palette,
     this.fit = FitMode.page,
     this.showInfo = true,
+    this.kashida = true,
     this.highlight,
     this.onLongPressAyah,
   });
@@ -46,6 +47,9 @@ class MushafPageView extends StatelessWidget {
   final PagePalette palette;
   final FitMode fit;
   final bool showInfo;
+
+  /// Justify lines with kashida (see [QuranLine.kashida]).
+  final bool kashida;
 
   /// Ayah drawn with a highlight behind its words.
   final AyahKey? highlight;
@@ -59,7 +63,7 @@ class MushafPageView extends StatelessWidget {
         style: TextStyle(color: palette.ink),
         child: LayoutBuilder(
           builder: (context, c) {
-            final hPad = (c.maxWidth * 0.035).clamp(6.0, 36.0);
+            final hPad = (c.maxWidth * 0.02).clamp(4.0, 28.0);
             final infoHeight = showInfo ? (c.maxHeight * 0.045).clamp(16.0, 34.0) : 0.0;
             final vPad = (c.maxHeight * 0.012).clamp(4.0, 16.0);
             final areaWidth = c.maxWidth - 2 * hPad;
@@ -68,6 +72,7 @@ class MushafPageView extends StatelessWidget {
 
             Widget block = _Lines(
               mushaf: mushaf,
+              kashida: kashida,
               page: page,
               geo: geo,
               palette: palette,
@@ -152,6 +157,7 @@ class _TopInfo extends StatelessWidget {
 class _Lines extends StatelessWidget {
   const _Lines({
     required this.mushaf,
+    required this.kashida,
     required this.page,
     required this.geo,
     required this.palette,
@@ -160,6 +166,7 @@ class _Lines extends StatelessWidget {
   });
 
   final Mushaf mushaf;
+  final bool kashida;
   final MushafPage page;
   final PageGeometry geo;
   final PagePalette palette;
@@ -169,15 +176,28 @@ class _Lines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lines = page.lines;
-    // The opening pages hold a few short, centred lines in a decorated block:
-    // centre the block vertically and, when every line is centred, set the
-    // text larger as the prints do.
-    final opening = page.page <= 2;
     final lastSlot = lines.fold<int>(0, (m, l) => math.max(m, l.line));
-    final shift = opening ? (mushaf.linesPerPage - lastSlot) / 2 : 0.0;
-    final allCentered = lines.every((l) => l.kind != LineKind.ayah || l.centered);
-    final scale = opening && allCentered ? math.min(1.3, geo.pitch / (geo.fontSize * mushaf.lineScale)) : 1.0;
-    final style = TextStyle(fontFamily: mushaf.fontFamily, fontSize: geo.fontSize * scale, color: palette.ink);
+    var fontSize = geo.fontSize;
+    var pitch = geo.pitch;
+    var top = 0.0;
+    if (page.page <= 2) {
+      // The opening pages hold a few lines in a decorated block. Where they
+      // are all short centred lines (Madinah prints), set them as large as
+      // the screen allows; then centre the block vertically.
+      final allCentered = lines.every((l) => l.kind != LineKind.ayah || l.centered);
+      if (allCentered) {
+        final widest = lines
+            .where((l) => l.kind != LineKind.surah)
+            .map((l) => _naturalWidth(l.text ?? mushaf.basmala, fontSize))
+            .fold<double>(1, math.max);
+        final byWidth = fontSize * geo.textWidth * 0.94 / widest;
+        final byHeight = geo.contentHeight / lastSlot / mushaf.lineScale;
+        fontSize = math.max(fontSize, math.min(byWidth, byHeight));
+        pitch = math.min(geo.contentHeight / lastSlot, fontSize * PageGeometry.maxPitch);
+      }
+      top = (geo.contentHeight - pitch * lastSlot) / 2;
+    }
+    final style = TextStyle(fontFamily: mushaf.fontFamily, fontSize: fontSize, color: palette.ink);
     final highlightColor = palette.frame.withValues(alpha: palette.brightness == Brightness.dark ? 0.35 : 0.18);
 
     return SizedBox(
@@ -187,18 +207,32 @@ class _Lines extends StatelessWidget {
         children: [
           for (final line in lines)
             Positioned(
-              top: (line.line - 1 + shift) * geo.pitch,
+              top: top + (line.line - 1) * pitch,
               left: 0,
               right: 0,
-              height: geo.pitch,
-              child: _line(line, style, highlightColor),
+              height: pitch,
+              child: _line(line, style, pitch, highlightColor),
             ),
         ],
       ),
     );
   }
 
-  Widget _line(PageLine line, TextStyle style, Color highlightColor) {
+  double _naturalWidth(String text, double fontSize) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontFamily: mushaf.fontFamily, fontSize: fontSize),
+      ),
+      textDirection: TextDirection.rtl,
+      textScaler: TextScaler.noScaling,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
+  }
+
+  Widget _line(PageLine line, TextStyle style, double pitch, Color highlightColor) {
     switch (line.kind) {
       case LineKind.surah:
         final hasBasmalaRow = page.lines.any((l) => l.kind == LineKind.basmala && l.surah == line.surah);
@@ -206,14 +240,14 @@ class _Lines extends StatelessWidget {
         return SurahHeader(
           surah: line.surah!,
           width: geo.textWidth,
-          height: geo.pitch,
+          height: pitch,
           frameColor: palette.frame,
           inkColor: palette.ink,
           basmala: withBasmala ? mushaf.basmala : null,
           basmalaStyle: style.copyWith(fontSize: style.fontSize! * 0.8),
         );
       case LineKind.basmala:
-        return QuranLine(text: line.text ?? mushaf.basmala, style: style, height: geo.pitch, centered: true);
+        return QuranLine(text: line.text ?? mushaf.basmala, style: style, height: pitch, centered: true);
       case LineKind.ayah:
         final ayahs = wordAyahs(line);
         final highlighted = highlight == null
@@ -225,8 +259,9 @@ class _Lines extends StatelessWidget {
         return QuranLine(
           text: line.text ?? '',
           style: style,
-          height: geo.pitch,
+          height: pitch,
           centered: line.centered,
+          kashida: kashida,
           highlight: highlighted,
           highlightColor: highlightColor,
           onLongPressWord: onLongPressAyah == null || ayahs.isEmpty

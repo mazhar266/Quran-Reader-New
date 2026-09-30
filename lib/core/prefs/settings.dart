@@ -19,6 +19,7 @@ class Settings {
     this.fitMode = FitMode.page,
     this.twoPages = true,
     this.showPageInfo = true,
+    this.kashida = true,
     this.locale,
   });
 
@@ -27,6 +28,10 @@ class Settings {
   final FitMode fitMode;
   final bool twoPages;
   final bool showPageInfo;
+
+  /// Fill justified lines by elongating letter joins (kashida), as printed
+  /// mushafs do; otherwise only the spaces grow.
+  final bool kashida;
 
   /// Null follows the system language.
   final Locale? locale;
@@ -37,6 +42,7 @@ class Settings {
     FitMode? fitMode,
     bool? twoPages,
     bool? showPageInfo,
+    bool? kashida,
     Locale? Function()? locale,
   }) => Settings(
     theme: theme ?? this.theme,
@@ -44,6 +50,7 @@ class Settings {
     fitMode: fitMode ?? this.fitMode,
     twoPages: twoPages ?? this.twoPages,
     showPageInfo: showPageInfo ?? this.showPageInfo,
+    kashida: kashida ?? this.kashida,
     locale: locale == null ? this.locale : locale(),
   );
 }
@@ -59,6 +66,7 @@ class SettingsStore {
   static const _fitMode = 'fit_mode';
   static const _twoPages = 'two_pages';
   static const _showPageInfo = 'show_page_info';
+  static const _kashida = 'kashida';
   static const _locale = 'locale';
   static const _lastMushaf = 'last_mushaf';
   static const _pagePrefix = 'page.';
@@ -72,6 +80,7 @@ class SettingsStore {
       fitMode: FitMode.values.asNameMap()[_prefs.getString(_fitMode)] ?? d.fitMode,
       twoPages: _prefs.getBool(_twoPages) ?? d.twoPages,
       showPageInfo: _prefs.getBool(_showPageInfo) ?? d.showPageInfo,
+      kashida: _prefs.getBool(_kashida) ?? d.kashida,
       locale: locale == null ? null : Locale(locale),
     );
   }
@@ -82,6 +91,7 @@ class SettingsStore {
     await _prefs.setString(_fitMode, s.fitMode.name);
     await _prefs.setBool(_twoPages, s.twoPages);
     await _prefs.setBool(_showPageInfo, s.showPageInfo);
+    await _prefs.setBool(_kashida, s.kashida);
     if (s.locale == null) {
       await _prefs.remove(_locale);
     } else {

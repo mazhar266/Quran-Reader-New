@@ -152,6 +152,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 palette: palette,
                 fit: settings.fitMode,
                 showInfo: settings.showPageInfo,
+                kashida: settings.kashida,
                 highlight: _highlight,
                 onLongPressAyah: (line, ayah) => _onLongPressAyah(page, line, ayah),
               );
@@ -167,6 +168,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                       textDirection: TextDirection.rtl,
                       child: PageView.builder(
                         controller: controller,
+                        // Lay out the neighbouring pages ahead of the swipe.
+                        allowImplicitScrolling: true,
                         itemCount: count,
                         onPageChanged: _onPageChanged,
                         itemBuilder: (context, index) => spread
