@@ -107,9 +107,23 @@ K is the widest justified line plus 1 %; the KFGQPC Word documents themselves se
    checksummed binaries elsewhere. For builds without GitHub access the hook can compile the
    amalgamation instead (`source: source`, `path: …/sqlite3.c`).
 
-## 6. Next steps
+## 6. Spike 5: QCF pack sizes
 
-- v1.1 QCF packs: extend the pipeline with pack building (hint stripping, manifest), add a
-  `PackManager` and the glyph rendering mode; run the COLR spike on Android and iOS.
+Measured on a sample of every 30th–40th page font with fontTools:
+
+| pack | raw | hinting tables removed | + glyph instructions removed, zipped |
+|---|---|---|---|
+| QCF V2 (604 fonts) | 208 MB | ~207 MB | ~122 MB |
+| QCF V4 tajweed, COLR (604 fonts) | 167 MB | ~167 MB | ~67 MB |
+
+Dropping `fpgm`/`prep`/`cvt `/`hdmx`/`VDMX`/`LTSH` saves under 1 %: the outlines themselves dominate.
+Both packs must stay out of the app bundle. A single 122 MB download is fragile on mobile data, so
+split each pack into parts of 50–100 pages (which also lets the reader start before the whole pack
+arrives), or use Play Asset Delivery / On-Demand Resources.
+
+## 7. Next steps
+
+- v1.1 QCF packs: extend the pipeline with pack building (instructions stripped, split packs,
+  manifest), add a `PackManager` and the glyph rendering mode; run the COLR spike on Android and iOS.
 - Hizb/rub' navigation from Tanzil metadata.
 - Release: signing config, store listings, device checks on the sample pages of milestone 2.
