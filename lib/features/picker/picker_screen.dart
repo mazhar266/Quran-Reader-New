@@ -93,13 +93,14 @@ class _ContinueCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final data = ref.watch(pageProvider((mushaf.id, page)));
+    final clampedPage = page.clamp(1, mushaf.pages);
+    final data = ref.watch(pageProvider((mushaf.id, clampedPage)));
     final surah = ref.watch(surahsProvider)[data.surah - 1];
     return Card.filled(
       color: scheme.primaryContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => context.go(readerLocation(mushaf.id, page)),
+        onTap: () => context.go(readerLocation(mushaf.id, clampedPage)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -116,7 +117,7 @@ class _ContinueCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${mushafName(context, mushaf)}\n${surahName(context, surah)} · ${l.pageN(page)}',
+                      '${mushafName(context, mushaf)}\n${surahName(context, surah)} · ${l.pageN(clampedPage)}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onPrimaryContainer),
                     ),
                   ],
