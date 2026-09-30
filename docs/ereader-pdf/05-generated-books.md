@@ -15,8 +15,8 @@ small for comfortable reading.
 | `quran-hafs-madinah-reflow-16pt-6in.pdf` | flowing text, 10 lines | 16 pt | 1,049 |
 | `quran-hafs-madinah-reflow-20pt-6in.pdf` | flowing text, 8 lines (large print) | 20 pt | 1,654 |
 | `quran-hafs-madinah-rotated-6in.pdf` | 5 printed lines, exact, sideways | 17.1 pt | 1,810 |
-| `quran-{warsh,qaloun,douri,shuba,sousi}-madinah-reflow-16pt-6in.pdf` | flowing text, 10 lines | 16 pt | ≈ 1,050 |
-| `quran-{warsh,qaloun,douri,shuba,sousi}-madinah-rotated-6in.pdf` | 5 printed lines, sideways | ≈ 17 pt | 1,810 |
+| `quran-{warsh,qaloun,douri,shuba,sousi}-madinah-reflow-16pt-6in.pdf` | flowing text, 10 lines | 16 pt | 1,057–1,084 |
+| `quran-{warsh,qaloun,douri,shuba,sousi}-madinah-rotated-6in.pdf` | 5 printed lines, sideways | 16.6–16.9 pt | 1,810 |
 | `quran-indopak-gaba-9-lines-6in.pdf` | one printed 9-line page, exact | 17.8 pt | 1,890 |
 
 Each file also has 15 front-matter screens (title, about, 10 surah-index, 3 juz-index screens).
@@ -48,7 +48,8 @@ text anyway), so readability was preferred.
 Flowing books break lines greedily at natural spacing and then fill each line; the last line of a
 surah is centred when it is shorter than 70 % of the width. A surah header, its basmala and the first
 line always share a screen. Exact-line books size the text so that 99 % (sideways) or 99.9 % (Gaba)
-of lines fit with their spaces tightened; the rest are squeezed horizontally by at most 10 %.
+of lines fit with their spaces tightened; the rest (about 1 % of lines in the sideways books) are
+squeezed horizontally, by at most 10 % in Hafs and 14 % in the widest Warsh/Qaloun lines.
 
 ## 3. Layout and printing
 
@@ -79,12 +80,18 @@ The build report is written to `build/ereader/report.json`. For every book: page
 matter + screens; displayed page size 257.0 × 347.5 pt (rotated screens included); fonts are exactly
 the mushaf font, `surah-name-v2`, `quran-common` and DejaVu Sans; no ink at the page edges.
 
-| book | lines justified | with kashida | squeezed (min scale) |
-|---|---|---|---|
-| Hafs flowing 16 pt | 10,150 | 70 % | 0 |
-| Hafs flowing 20 pt | 12,874 | 73 % | 0 |
-| Hafs sideways 17.1 pt | 8,807 | 93 % | 86 (0.904) |
-| Gaba 17.8 pt | 16,815 | 100 % | 0 |
+| book | text | screens | size | lines justified | with kashida | squeezed (min scale) |
+|---|---|---|---|---|---|---|
+| Hafs flowing | 16 pt | 1,049 | 7.2 MB | 10,150 | 70 % | 0 |
+| Hafs flowing, large print | 20 pt | 1,654 | 8.3 MB | 12,874 | 73 % | 0 |
+| Warsh / Qaloun / Douri / Shu'bah / Sousi flowing | 16 pt | 1,084 / 1,083 / 1,059 / 1,058 / 1,057 | 6.9–7.0 MB | ≈ 10,300 | 69–70 % | 0 |
+| Hafs sideways | 17.1 pt | 1,810 | 8.6 MB | 8,807 | 93 % | 86 (0.904) |
+| Warsh sideways | 16.6 pt | 1,810 | 8.0 MB | 8,807 | 93 % | 88 (0.874) |
+| Qaloun sideways | 16.6 pt | 1,810 | 8.0 MB | 8,807 | 93 % | 86 (0.864) |
+| Douri sideways | 16.9 pt | 1,810 | 8.2 MB | 8,807 | 93 % | 85 (0.915) |
+| Shu'bah sideways | 16.9 pt | 1,810 | 8.2 MB | 8,807 | 93 % | 87 (0.895) |
+| Sousi sideways | 16.9 pt | 1,810 | 8.1 MB | 8,807 | 93 % | 86 (0.913) |
+| Indopak Gaba | 17.8 pt | 1,890 | 9.3 MB | 16,815 | 100 % | 0 |
 
 (Flowing lines are broken close to full, so fewer need kashida.) Sample renders:
 `images/book-hafs-reflow-16pt.png`, `images/book-hafs-reflow-20pt.png`,
