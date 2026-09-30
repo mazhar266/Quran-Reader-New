@@ -83,6 +83,10 @@ K is the widest justified line plus 1 %; the KFGQPC Word documents themselves se
     with the position remembered → bookmarks list; long-press ayah sheet; IndoPak with sepia and dark
     themes; two-page spread in landscape; Arabic UI.
 - Screenshots of these flows are in [images/screens/](images/screens/).
+- **Android release build** (`flutter build apk --release --split-per-abi`, Flutter 3.47.5): package
+  `fi.mazhar.quran.reader`, no INTERNET permission, `libsqlite3.so` bundled per ABI, the content
+  database compressed from 18.3 MB to 4.4 MB in the APK. APK sizes: arm64-v8a 26.9 MB,
+  armeabi-v7a 24.3 MB, x86_64 28.3 MB (all ABIs together 66.4 MB), within the plan's < 30 MB target.
 
 ## 5. Findings about the data (corrections to 01/03)
 
