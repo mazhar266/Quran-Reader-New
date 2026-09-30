@@ -451,6 +451,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reader'**
   String get reader;
+
+  /// No description provided for @kashida.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill lines by elongating letters (kashida)'**
+  String get kashida;
+
+  /// No description provided for @kashidaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As in printed mushafs. Off: lines are filled with wider spaces.'**
+  String get kashidaHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

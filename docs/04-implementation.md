@@ -39,34 +39,47 @@ page read.
 ## 3. Rendering
 
 - **`QuranLine`** (`features/reader/quran_line.dart`) is a `RenderBox` that shapes each word with its
-  own `TextPainter` and lays the words out right to left, sharing the slack evenly between them
-  (justified) or centring the line. A line wider than its box is squeezed horizontally, never wrapped.
-  Words are split on plain spaces; the ayah mark and the rub' ornament are glued to their word with a
-  no-break space, and a token with no Arabic letter (an IndoPak ayah circle or pause sign) stays with
-  the word before it. Long-press hit-tests a word, which maps to its ayah by counting ayah-end marks.
+  own `TextPainter` and lays the words out right to left, justified or centred. Words are split on
+  plain spaces; the ayah mark and the rub' ornament are glued to their word with a no-break space, and
+  a token with no Arabic letter (an IndoPak ayah circle or pause sign) stays with the word before it.
+  Long-press hit-tests a word, which maps to its ayah by counting ayah-end marks.
+- **Kashida justification.** Printed mushafs fill a line by elongating the joins between letters, not
+  by widening spaces. A justified line lets its spaces grow by a quarter, then inserts tatweels
+  (U+0640) at each word's best kashida place (`domain/kashida.dart`: after seen/sad, before a final
+  ta marbuta/heh/dal, before a final alef/lam/kaf, before other finals, then inside the word; never in
+  lam-alef or the name of Allah, always after the letter's marks). Tatweels are dealt round-robin,
+  best words first, at most 5 per word. Their width depends on context (a first tatweel in the KFGQPC
+  fonts adds ~0.14 em, not the glyph's 0.33 em, because the letter before it takes a flatter joining
+  form), so they are added in measured rounds, and a round that overshoots is retried with fewer. The
+  stored text is never changed; readers can switch kashida off in Settings (spaces then fill lines).
+  A line wider than its box first tightens its spaces to half, then is squeezed horizontally.
 - **Geometry** (`page_geometry.dart`): `fontSize = textWidth / K`; in whole-page fit it is also limited
   so that all lines fit at the minimum pitch `L × fontSize`. The remaining height spreads the lines up
-  to 3 em apart. Full-width fit scrolls when the page is taller than the screen.
+  to 3 em apart. Full-width fit scrolls when the page is taller than the screen. Page margins are 2 %
+  of the width.
 - **Headers**: frame glyph U+E000 of `quran-common` with the `surah-name-v2` glyph centred in it. The
   page labels use the same fonts (surah name glyph, calligraphic juz names U+E001–U+E01E).
 - **Opening pages** (1–2) are centred vertically; when all their lines are centred (Madinah prints)
-  the text is set 1.3× larger, as printed.
+  the text is enlarged until the widest line fills 94 % of the width or the lines fill the height.
 
 K and L are measured by the pipeline with HarfBuzz (Pillow + Raqm):
 
-| mushaf | K (em) | L (em) |
-|---|---|---|
-| Hafs | 22.77 | 1.78 |
-| Warsh | 23.99 | 1.71 |
-| Qaloun | 24.22 | 1.70 |
-| Douri | 22.85 | 1.75 |
-| Shu'bah | 23.29 | 1.76 |
-| Sousi | 22.85 | 1.75 |
-| Qatar | 22.81 | 1.77 |
-| Indopak Gaba | 13.36 | 1.84 |
+| mushaf | K (em) | widest line (em) | L (em) |
+|---|---|---|---|
+| Hafs | 20.56 | 22.54 | 1.78 |
+| Warsh | 21.41 | 23.75 | 1.71 |
+| Qaloun | 21.39 | 23.98 | 1.70 |
+| Douri | 20.91 | 22.62 | 1.75 |
+| Shu'bah | 20.90 | 23.06 | 1.76 |
+| Sousi | 20.85 | 22.62 | 1.75 |
+| Qatar | 20.32 | – | 1.77 |
+| Indopak Gaba | 11.15 | 12.91 | 1.84 |
 
-K is the widest justified line plus 1 %; the KFGQPC Word documents themselves set 22 pt text on a
-523 pt measure (23.8 em), which agrees.
+Line widths vary a lot: the median Madinah line is 16 em, 30 % shorter than the widest (the KFGQPC
+Word documents set 22 pt text on a 523 pt measure, 23.8 em, and fill lines with wide spaces). Sizing
+the font by the widest line made the text small and the gaps wide, so K is the 99.9th percentile of
+the lines' *tight* width (spaces halved), plus 0.5 %: text is 11 % larger in the Madinah mushafs and
+20 % larger in the Indopak one, and about one line in a thousand is squeezed slightly.
 
 ## 4. Verification
 
@@ -77,8 +90,11 @@ K is the widest justified line plus 1 %; the KFGQPC Word documents themselves se
 - **Flutter tests** (`flutter test`):
   - `quran_text_test`: segmentation and word → ayah mapping.
   - `content_database_test`: catalogue, navigation tables, riwayah-specific numbering.
-  - `line_fit_test`: renders ~40 pages of each mushaf on a phone; over 4,700 lines not one needed
-    any horizontal squeeze (smallest scale 1.0), so the pipeline's K matches Flutter's shaping.
+  - `kashida_test`: kashida places and priorities, lam-alef and the name of Allah left intact.
+  - `line_fit_test`: renders ~40 pages of each mushaf on a phone and measures every justified line.
+    With kashida, 98–100 % of lines are elongated, the median space between words is 0.25–0.29 em
+    (a normal space is 0.22 em; 0.40 em in the IndoPak font whose space is 0.30 em), the 95th
+    percentile is at most 0.45 em, and no sampled line needed a horizontal squeeze.
   - `app_flow_test`: picker → reader → swipe → chrome → bookmark → go to surah/page → back to picker
     with the position remembered → bookmarks list; long-press ayah sheet; IndoPak with sepia and dark
     themes; two-page spread in landscape; Arabic UI.

@@ -212,4 +212,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reader => 'القارئ';
+
+  @override
+  String get kashida => 'ملء الأسطر بمدّ الحروف (الكشيدة)';
+
+  @override
+  String get kashidaHint => 'كما في المصاحف المطبوعة. عند الإيقاف تُملأ الأسطر بتوسيع المسافات.';
 }

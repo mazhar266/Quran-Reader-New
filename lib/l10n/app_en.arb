@@ -148,5 +148,7 @@
   },
   "loadError": "Could not open the Quran data.",
   "menu": "Menu",
-  "reader": "Reader"
+  "reader": "Reader",
+  "kashida": "Fill lines by elongating letters (kashida)",
+  "kashidaHint": "As in printed mushafs. Off: lines are filled with wider spaces."
 }

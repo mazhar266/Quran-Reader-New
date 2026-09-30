@@ -249,6 +249,7 @@ class _Thumbnail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final page = ref.watch(pageProvider((mushaf.id, 1)));
+    final kashida = ref.watch(settingsProvider.select((s) => s.kashida));
     return AspectRatio(
       aspectRatio: 0.64,
       child: DecoratedBox(
@@ -263,7 +264,7 @@ class _Thumbnail extends ConsumerWidget {
               child: SizedBox(
                 width: 320,
                 height: 500,
-                child: MushafPageView(mushaf: mushaf, page: page, palette: palette, showInfo: false),
+                child: MushafPageView(mushaf: mushaf, page: page, palette: palette, showInfo: false, kashida: kashida),
               ),
             ),
           ),

@@ -30,8 +30,9 @@ void main() {
     testWidgets('preview $s', (tester) async {
       final mushaf = db.mushafs().firstWhere((m) => m.id == parts[0]);
       final page = db.page(mushaf.id, int.parse(parts[1]));
-      tester.view.physicalSize = const Size(1080, 2340);
-      tester.view.devicePixelRatio = 2.75;
+      // iPhone-sized window (393 × 852 pt).
+      tester.view.physicalSize = const Size(1179, 2556);
+      tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       final key = GlobalKey();
       await tester.pumpWidget(
@@ -39,7 +40,11 @@ void main() {
           debugShowCheckedModeBanner: false,
           home: RepaintBoundary(
             key: key,
-            child: MushafPageView(mushaf: mushaf, page: page, palette: PagePalette.light),
+            child: MushafPageView(
+              mushaf: mushaf,
+              page: page,
+              palette: Platform.environment.containsKey('PREVIEW_DARK') ? PagePalette.dark : PagePalette.light,
+            ),
           ),
         ),
       );

@@ -60,6 +60,12 @@ class SettingsScreen extends ConsumerWidget {
           ),
           header(l.reader),
           SwitchListTile(
+            title: Text(l.kashida),
+            subtitle: Text(l.kashidaHint),
+            value: s.kashida,
+            onChanged: (v) => notifier.update((x) => x.copyWith(kashida: v)),
+          ),
+          SwitchListTile(
             title: Text(l.keepScreenOn),
             value: s.keepScreenOn,
             onChanged: (v) => notifier.update((x) => x.copyWith(keepScreenOn: v)),

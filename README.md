@@ -32,8 +32,9 @@ The home screen lets the reader choose the mushaf; each one remembers its own la
 ## Features
 
 - Mushaf picker with a live rendering of each mushaf's first page, continue-reading card
-- Page reader: right-to-left page turning, every page drawn line by line at the printed line breaks
-  (custom justified line layout), calligraphic surah headers and basmalas, surah · juz · page labels
+- Page reader: right-to-left page turning, every page drawn line by line at the printed line breaks,
+  lines filled with kashida (elongated letter joins) as in print, calligraphic surah headers and
+  basmalas, surah · juz · page labels
 - Go to surah, juz or page; page slider
 - Page and ayah bookmarks (long-press a word to pick its ayah)
 - Light, sepia and dark pages; whole-page or full-width fit; keep screen on;

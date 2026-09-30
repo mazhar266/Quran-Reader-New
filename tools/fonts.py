@@ -1,5 +1,6 @@
 """Bundled font assets and per-mushaf page geometry derived from real shaping."""
 
+import re
 import shutil
 from pathlib import Path
 
@@ -38,11 +39,31 @@ def cmap(asset: str) -> set[int]:
     return set(TTFont(source(asset)).getBestCmap())
 
 
+_LETTER = re.compile("[\u0621-\u064a\u0671-\u06d3\uf61f]")
+
+
+def line_words(text: str) -> list[str]:
+    """The app's word units (lib/domain/quran_text.dart `lineWords`): a token
+    without an Arabic letter stays with the word before it."""
+    out: list[str] = []
+    for token in text.split(" "):
+        if not token:
+            continue
+        if out and not _LETTER.search(token):
+            out[-1] += " " + token
+        else:
+            out.append(token)
+    return out
+
+
 def page_geometry(asset: str, lines: list) -> tuple[float, float]:
     """Returns (font_scale K, line_scale L) for a mushaf.
 
-    K is the widest justified line's natural width in em (plus 1 %), so the
-    app can set ``fontSize = textWidth / K`` without squeezing any line.
+    The app sets ``fontSize = textWidth / K``. Printed lines vary a lot in
+    natural width (a median Madinah line is 30 % shorter than the widest), so
+    K is not the widest line: it is the 99.9th percentile of the lines'
+    *tight* width, i.e. with spaces shrunk to half, which the app allows
+    before it squeezes a line. Shorter lines are filled with kashida.
     L is the smallest line pitch (in em) that keeps the ink of adjacent lines
     apart: 99th percentile of descent plus 1st percentile of ascent.
     """
@@ -50,18 +71,22 @@ def page_geometry(asset: str, lines: list) -> tuple[float, float]:
 
     size = 200
     font = ImageFont.truetype(str(source(asset)), size, layout_engine=ImageFont.Layout.RAQM)
+    space = font.getlength(" ") / size
     widths, tops, bottoms = [], [], []
     for i, ln in enumerate(lines):
         if ln.kind != "ayah" or not ln.text:
             continue
         if not ln.centered:
-            widths.append(font.getlength(ln.text, direction="rtl", language="ar") / size)
+            gaps = len(line_words(ln.text)) - 1
+            natural = font.getlength(ln.text, direction="rtl", language="ar") / size
+            widths.append(natural - 0.5 * space * gaps)
         if i % 5 == 0:
             box = font.getbbox(ln.text, direction="rtl", language="ar", anchor="ls")
             tops.append(-box[1] / size)
             bottoms.append(box[3] / size)
+    widths.sort()
     tops.sort()
     bottoms.sort()
-    k = round(max(widths) * 1.01, 2)
+    k = round(widths[int(len(widths) * 0.999)] * 1.005, 2)
     lead = tops[int(len(tops) * 0.99)] + bottoms[int(len(bottoms) * 0.99)]
     return k, round(lead, 2)
