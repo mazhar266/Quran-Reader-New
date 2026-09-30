@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # resources/ (raw KFGQPC/QUL material, ~460 MB) is only needed by the pipeline.
+          sparse-checkout: |
+            lib
+            test
+            assets
+            android
+            ios
+            tools
+      - name: System SQLite for host tests
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test

@@ -10,6 +10,7 @@ A Flutter app for reading the Quran page by page in several mushafs. Reading onl
 | [01-resource-inventory.md](01-resource-inventory.md) | What exactly is in `resources/` (KFGQPC + QUL), formats, encodings, measured counts, quirks, and what is missing |
 | [02-app-plan.md](02-app-plan.md) | Scope, mushaf catalog, architecture, rendering strategy, milestones, spikes, risks |
 | [03-data-pipeline.md](03-data-pipeline.md) | How to turn the resources into the app's SQLite database and font assets, with validation |
+| [04-implementation.md](04-implementation.md) | What is built, how it was verified, and what the implementation learned about the data |
 | [images/](images/) | Shaped test renders: Gaba 9-line pages 1 and 1000 with `font.ttf`, and its private-use marker glyphs |
 | [ereader-pdf/](ereader-pdf/README.md) | Second series: generating 6-inch e-reader PDF books (Kindle, Kobo, PocketBook) from the same data |
 
