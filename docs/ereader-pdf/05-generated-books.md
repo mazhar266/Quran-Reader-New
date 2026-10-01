@@ -21,6 +21,7 @@ small for comfortable reading.
 
 Each file also has 15 front-matter screens (title, about, 10 surah-index, 3 juz-index screens).
 Sizes: 7–10 MB per book, well under the 50 MB Send-to-Kindle e-mail limit.
+The built files are committed in [`ereader-books/`](../../ereader-books/README.md).
 
 Which book to read with:
 
