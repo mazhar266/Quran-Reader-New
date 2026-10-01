@@ -84,6 +84,7 @@ python3 -m tools.icons     # launcher icons
 - [docs/README.md](docs/README.md): planning documents (resource inventory, app plan, data pipeline)
 - [docs/04-implementation.md](docs/04-implementation.md): what is built, how it was verified, findings
 - [docs/ereader-pdf/](docs/ereader-pdf/README.md): e-reader PDF books from the same data
+- [ereader-books/](ereader-books/README.md): the built e-reader PDF books, ready to copy to a 6-inch reader
 
 ## Credits
 
