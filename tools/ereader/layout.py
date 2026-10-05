@@ -5,8 +5,9 @@ lib/domain/kashida.dart, lib/features/reader/quran_line.dart) so the books
 and the app fill lines the same way: spaces grow a little, the rest of the
 slack elongates letter joins with tatweel at each word's best kashida place.
 
-All widths are in em; measurements come from HarfBuzz (Pillow + Raqm), which
-matches Chromium's shaping to within 0.0003 em for these fonts.
+All widths are in em; measurements come from HarfBuzz (Pillow + Raqm where
+Pillow has it, uharfbuzz otherwise), which matches Chromium's shaping to
+within 0.0003 em for these fonts.
 """
 
 from __future__ import annotations
@@ -16,8 +17,6 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
-from PIL import ImageFont
-
 TATWEEL = "\u0640"
 _LETTER = re.compile("[\u0621-\u064a\u0671-\u06d3\uf61f]")
 _SPACING = re.compile("[\u0621-\u064a\u0660-\u0669\u0671-\u06d3\uf500-\uf61f]")
@@ -25,19 +24,29 @@ _SPACING = re.compile("[\u0621-\u064a\u0660-\u0669\u0671-\u06d3\uf500-\uf61f]")
 # ---------------------------------------------------------------- segmentation
 
 
-def line_words(text: str) -> list[str]:
-    """Justification units: words split on plain spaces (ayah marks and the
-    rub' ornament are glued with U+00A0); a token without an Arabic letter
-    stays with the word before it."""
-    out: list[str] = []
-    for token in text.split(" "):
-        if not token:
-            continue
-        if out and not _LETTER.search(token):
-            out[-1] += " " + token
+def line_tokens(text: str) -> list[str]:
+    """The line's space-separated tokens (ayah marks and the rub' ornament are
+    glued to their word with U+00A0)."""
+    return [t for t in text.split(" ") if t]
+
+
+def token_groups(tokens: list[str]) -> list[list[int]]:
+    """Token indices per justification unit: a token without an Arabic letter
+    (a detached pause sign, an ayah marker) stays with the word before it."""
+    groups: list[list[int]] = []
+    for i, token in enumerate(tokens):
+        if groups and not _LETTER.search(token):
+            groups[-1].append(i)
         else:
-            out.append(token)
-    return out
+            groups.append([i])
+    return groups
+
+
+def line_words(text: str) -> list[str]:
+    """Justification units: words split on plain spaces; a token without an
+    Arabic letter stays with the word before it."""
+    tokens = line_tokens(text)
+    return [" ".join(tokens[i] for i in g) for g in token_groups(tokens)]
 
 
 def _is_ayah_end(c: int) -> bool:
@@ -155,30 +164,87 @@ def kashida_points(word: str) -> tuple[tuple[int, int], ...]:
     return tuple(points)
 
 
-def elongate(word: str, count: int) -> str:
-    """The word with ``count`` tatweels over its (up to two) best places."""
+def kashida_shares(word: str, count: int) -> dict[int, int]:
+    """How ``count`` tatweels are shared over the word's (up to two) best
+    places: {offset: tatweels inserted there}."""
     points = kashida_points(word)
     if count <= 0 or not points:
-        return word
+        return {}
     shares = {points[0][0]: count if len(points) == 1 or count < 3 else (count + 1) // 2}
     if len(points) > 1 and count >= 3:
         shares[points[1][0]] = count // 2
+    return shares
+
+
+def elongate(word: str, count: int) -> str:
+    """The word with ``count`` tatweels over its (up to two) best places."""
     out = word
-    for offset in sorted(shares, reverse=True):
-        out = out[:offset] + TATWEEL * shares[offset] + out[offset:]
+    for offset, n in sorted(kashida_shares(word, count).items(), reverse=True):
+        out = out[:offset] + TATWEEL * n + out[offset:]
+    return out
+
+
+def elongate_colours(colours: list, word: str, count: int) -> list:
+    """Per-character colours of ``elongate(word, count)``: each inserted
+    tatweel takes the colour of the letter it extends."""
+    out = list(colours)
+    for offset, n in sorted(kashida_shares(word, count).items(), reverse=True):
+        out[offset:offset] = [out[offset - 1] if offset > 0 else None] * n
     return out
 
 
 # ---------------------------------------------------------------- measurement
 
 
-class Measure:
-    """Advance widths in em, cached, for one font file."""
+class _RaqmEngine:
+    """HarfBuzz through Pillow + Raqm (Linux builds of Pillow)."""
 
     SIZE = 1000
 
     def __init__(self, font: Path):
+        from PIL import ImageFont
+
         self.font = ImageFont.truetype(str(font), self.SIZE, layout_engine=ImageFont.Layout.RAQM)
+
+    def width(self, text: str) -> float:
+        return self.font.getlength(text, direction="rtl", language="ar") / self.SIZE
+
+
+class _HarfBuzzEngine:
+    """HarfBuzz through uharfbuzz (Pillow's Windows and macOS wheels lack Raqm)."""
+
+    def __init__(self, font: Path):
+        import uharfbuzz as hb
+
+        self.hb = hb
+        face = hb.Face(hb.Blob.from_file_path(str(font)))
+        self.font = hb.Font(face)
+        self.upem = face.upem
+
+    def width(self, text: str) -> float:
+        buf = self.hb.Buffer()
+        buf.add_str(text)
+        buf.direction = "rtl"
+        buf.script = "Arab"
+        buf.language = "ar"
+        self.hb.shape(self.font, buf)
+        return sum(p.x_advance for p in buf.glyph_positions) / self.upem
+
+
+def _has_raqm() -> bool:
+    try:
+        from PIL import features
+
+        return bool(features.check("raqm"))
+    except ImportError:
+        return False
+
+
+class Measure:
+    """Advance widths in em, cached, for one font file."""
+
+    def __init__(self, font: Path):
+        self.engine = _RaqmEngine(font) if _has_raqm() else _HarfBuzzEngine(font)
         self._cache: dict[str, float] = {}
         self.space = self.width(" ")
         self.tatweel = self.width(TATWEEL)
@@ -186,7 +252,7 @@ class Measure:
     def width(self, text: str) -> float:
         w = self._cache.get(text)
         if w is None:
-            w = self._cache[text] = self.font.getlength(text, direction="rtl", language="ar") / self.SIZE
+            w = self._cache[text] = self.engine.width(text)
         return w
 
 
@@ -204,6 +270,7 @@ class Line:
     offsets: list[float] = field(default_factory=list)  # distance of each word's right edge from the line's right edge (em)
     scale: float = 1.0  # horizontal squeeze (< 1 for the rare too-wide line)
     kashida: int = 0
+    colours: list[list | None] | None = None  # per word: per-character tajwid rule, or None
 
     @property
     def span(self) -> float:
@@ -212,7 +279,7 @@ class Line:
 
 
 def justify(units: list[str], width: float, m: Measure, *, centered: bool = False, kashida: bool = True,
-            right_inset: float = 0.0) -> Line:
+            right_inset: float = 0.0, colours: list[list | None] | None = None) -> Line:
     """Lays out ``units`` in a line ``width`` em wide.
 
     Justified lines grow their spaces by a quarter and fill the rest with
@@ -221,7 +288,8 @@ def justify(units: list[str], width: float, m: Measure, *, centered: bool = Fals
     spaces can absorb is retried with fewer tatweels. A line too wide even
     with half spaces is squeezed horizontally. Centred lines keep normal
     spaces. ``right_inset`` keeps room at the line's left end (in RTL) for a
-    detached pause sign's overhang.
+    detached pause sign's overhang. ``colours`` (per unit, per character) are
+    carried onto the elongated words.
     """
     n = len(units)
     if n == 0:
@@ -232,12 +300,12 @@ def justify(units: list[str], width: float, m: Measure, *, centered: bool = Fals
     widths = [m.width(w) for w in words]
     inked = sum(widths)
     added = 0
+    counts = [0] * n
     if kashida and not centered and n > 1:
         target = width - inked - s * 1.25 * (n - 1)
         if target >= m.tatweel * 0.4:
             points = [kashida_points(w) for w in units]
             order = sorted((i for i in range(n) if points[i]), key=lambda i: points[i][0][1])
-            counts = [0] * n
             limit = target + s * 0.5 * (n - 1)
             unit = m.tatweel * 0.6
             gained = 0.0
@@ -294,6 +362,8 @@ def justify(units: list[str], width: float, m: Measure, *, centered: bool = Fals
         offsets.append(x)
         x += w + gap
     line = Line(words, widths, offsets, scale, added)
+    if colours is not None:
+        line.colours = [None if c is None else elongate_colours(c, units[i], counts[i]) for i, c in enumerate(colours)]
     if centered or n == 1:
         # Centre the used span in the full width (offsets are from the right).
         shift = (width + right_inset - used * scale) / 2 / scale

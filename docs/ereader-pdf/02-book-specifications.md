@@ -16,7 +16,7 @@
 
 Sizes follow [01 §5.3](01-targets-and-page-geometry.md); the portrait half-page (S) books are generated only for QCF V2, because for the Unicode riwayat fonts they gain little over F and leave half the screen empty.
 
-Later: 7-inch variants (`-7in`), QCF V4 tajweed for colour e-ink, a Hafs split book for readers who want both line fidelity and larger text.
+Later: 7-inch variants (`-7in`), a Hafs split book for readers who want both line fidelity and larger text. (Tajwid for colour e-ink was planned through the QCF V4 colour fonts; it was done instead by colouring the Unicode text of the Hafs books from QUL's QPC Hafs tajwid annotation, see 05 §6.)
 
 ## 2. Screen anatomy
 

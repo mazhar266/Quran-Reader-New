@@ -8,7 +8,7 @@ Second document series. Goal: produce PDF mushafs that read well on **6-inch e-i
 | [02-book-specifications.md](02-book-specifications.md) | The catalogue of books to generate, page anatomy, front matter, outline, naming, sizes, licensing |
 | [03-generation-pipeline.md](03-generation-pipeline.md) | Toolchain (HTML/CSS + headless Chrome), scripts, algorithms per mode, post-processing, checks |
 | [04-qa-and-devices.md](04-qa-and-devices.md) | QA checklist, device testing matrix, transfer methods, known reader quirks |
-| [05-generated-books.md](05-generated-books.md) | **The books as built** by `tools/ereader/`: files, sizes, line filling, verification |
+| [05-generated-books.md](05-generated-books.md) | **The books as built** by `tools/ereader/`: files, sizes, line filling, verification; the tajwid editions (§6) |
 | [images/](images/) | 300 ppi renders of the prototype pages produced while writing this series |
 
 ## Findings in one screen
@@ -19,7 +19,7 @@ Second document series. Goal: produce PDF mushafs that read well on **6-inch e-i
 4. **Reflow remains the readable portrait option.** Wrapping the KFGQPC text at 16 pt gives about 1,000 screens per mushaf; 20 pt about 1,480. Prototype: `images/hafs-reflow-16pt-screen-4.png`. QCF V2 in portrait: half page per screen at 15 pt (`images/qcf-v2-split-flex-15pt-page-3a.png`).
 5. **The Indopak 9-line Gaba print is a natural fit.** Its widest line is 13.2 em, so a faithful page renders at about 18 pt on a 6-inch screen with `qul/font.ttf`. Prototype: `images/gaba-faithful-9-lines-page-1000.png`.
 6. **Justification is the main quality issue.** Fonts that are not page-specific cannot stretch calligraphically, so forcing the printed line breaks leaves inter-word gaps (median stretch 1.27× for Hafs, larger for Gaba). The Complex's own A4 PDFs have the same look. The spec caps justification and falls back to right-aligned lines.
-7. **Tajweed colours are pointless on grayscale e-ink.** QCF V4 is only worth generating for colour e-ink devices, later.
+7. **Tajweed colours are pointless on grayscale e-ink**, so the first books are black. For colour e-ink devices, tajwid editions of the Hafs books were added later from QUL's QPC Hafs tajwid annotation rather than from the QCF V4 colour fonts (05 §6): same screens, letters coloured by rule.
 8. **Two generator pitfalls are documented** (01 §5.4): the QCF V2 page fonts have no space glyph, so lines must be laid out as flex boxes of word spans, and glyph ink overhangs the advance width at line ends, so lines must be fitted by ink extent.
 
 ## Suggested order of work

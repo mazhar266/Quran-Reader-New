@@ -3,10 +3,12 @@
     python3 -m tools.ereader.build                 # every book
     python3 -m tools.ereader.build hafs-reflow     # books whose key starts with this
     python3 -m tools.ereader.build --list
+    python3 -m tools.ereader.build gaba-tajweed --limit 40   # a quick look at the first screens
 
 Sizes follow docs/ereader-pdf/01 §5, with readability first: the smallest
 text in any book is 16 pt (docs tier "comfortable"); nothing is generated at
-the 10–11 pt "pocket mushaf" sizes.
+the 10–11 pt "pocket mushaf" sizes. The ``-tajweed`` keys are the same books
+with tajwid colours (Hafs only: the annotation describes the Hafs recitation).
 """
 
 from __future__ import annotations
@@ -47,6 +49,23 @@ def catalogue() -> dict[str, callable]:
         c, "indopak_9_gaba", rotated=False, lines_per_screen=9, width_quantile=0.999, pitch_em=1.9,
         file_name="quran-indopak-gaba-9-lines-6in.pdf",
         title="The Quran · Indopak script · 9-line Gaba print", title_ar="")
+    # Tajwid editions of the Hafs books (Madinah and the Indopak Gaba print).
+    books["hafs-reflow-tajweed"] = lambda c: reflow_book(
+        c, "madinah_hafs", font_pt=16, pitch_em=1.9, tajweed=True,
+        file_name="quran-hafs-madinah-reflow-16pt-tajweed-6in.pdf",
+        title="The Quran · Madinah Mushaf · Hafs · flowing text 16 pt · tajwid colours", title_ar="")
+    books["hafs-reflow-large-tajweed"] = lambda c: reflow_book(
+        c, "madinah_hafs", font_pt=20, pitch_em=1.9, tajweed=True,
+        file_name="quran-hafs-madinah-reflow-20pt-tajweed-6in.pdf",
+        title="The Quran · Madinah Mushaf · Hafs · large print 20 pt · tajwid colours", title_ar="")
+    books["hafs-rotated-tajweed"] = lambda c: exact_book(
+        c, "madinah_hafs", rotated=True, lines_per_screen=5, width_quantile=0.99, pitch_em=1.9, tajweed=True,
+        file_name="quran-hafs-madinah-rotated-tajweed-6in.pdf",
+        title="The Quran · Madinah Mushaf · Hafs · printed lines, sideways · tajwid colours", title_ar="")
+    books["gaba-tajweed"] = lambda c: exact_book(
+        c, "indopak_9_gaba", rotated=False, lines_per_screen=9, width_quantile=0.999, pitch_em=1.9, tajweed=True,
+        file_name="quran-indopak-gaba-9-lines-tajweed-6in.pdf",
+        title="The Quran · Indopak script · 9-line Gaba print · tajwid colours", title_ar="")
     return books
 
 
@@ -55,6 +74,7 @@ def main() -> None:
     ap.add_argument("keys", nargs="*", help="book keys or prefixes (default: all)")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--no-pdf", action="store_true", help="compose and report only")
+    ap.add_argument("--limit", type=int, help="print only the first N screens, unfinished, for a quick look")
     args = ap.parse_args()
     books = catalogue()
     if args.list:
@@ -69,7 +89,11 @@ def main() -> None:
         t = time.time()
         book: Book = books[key](content)
         line = f"{key}: {len(book.screens)} screens, {json.dumps(book.stats)}"
-        if not args.no_pdf:
+        if args.limit:
+            pdf = build_pdf(book, args.limit)
+            checks.previews(book, pdf)
+            line += f"\n    {pdf.name}: first {args.limit} screens, previews in {checks.preview_dir(book)}"
+        elif not args.no_pdf:
             pdf = build_pdf(book)
             result = checks.check_pdf(book, pdf)
             checks.previews(book, pdf)
@@ -77,7 +101,7 @@ def main() -> None:
             report[key] = {"file": pdf.name, **book.stats, **result}
         print(f"{line}  ({time.time() - t:.0f} s)", flush=True)
     if report:
-        (OUT / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False))
+        (OUT / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,9 @@ Three modes (docs/ereader-pdf/01 §4):
 - ``rotated``: the exact printed lines, five per screen, laid along the long
   side of the screen (the PDF page is rotated, the reader turns the device).
 - ``faithful``: one printed page per screen (the 9-line Gaba print).
+
+Any Hafs book can also be a tajwid edition (``tajweed=True``): the letters
+are coloured by the rule that applies to them (see ``tajweed.py``).
 """
 
 from __future__ import annotations
@@ -16,7 +19,8 @@ import sqlite3
 from dataclasses import dataclass, field
 
 from ..paths import ASSET_DB, ASSET_FONTS
-from .layout import Line, Measure, ayah_ends, justify, line_words, trailing_overhang
+from .layout import Line, Measure, ayah_ends, justify, line_tokens, line_words, token_groups, trailing_overhang
+from .tajweed import Tajweed
 
 MM_PER_PT = 25.4 / 72
 
@@ -103,6 +107,7 @@ class Book:
     surah_pages: dict[int, int]  # surah → printed page
     juz_pages: dict[int, int]
     stats: dict
+    tajweed: bool = False
 
 
 # ---------------------------------------------------------------- data
@@ -202,15 +207,43 @@ def _word_keys(first: tuple[int, int], units: list[str]) -> list[tuple[int, int]
     return keys
 
 
+def _units(text: str, token_colours: list | None) -> tuple[list[str], list | None]:
+    """Justification units of a line and, from per-token colours, each unit's
+    per-character colours (tokens glued to a word are joined by an
+    uncoloured space)."""
+    tokens = line_tokens(text)
+    groups = token_groups(tokens)
+    units = [" ".join(tokens[i] for i in g) for g in groups]
+    if token_colours is None:
+        return units, None
+    colours = []
+    for g in groups:
+        c: list = []
+        for n, i in enumerate(g):
+            if n:
+                c.append(None)
+            c.extend(token_colours[i])
+        colours.append(c)
+    return units, colours
+
+
+def _basmala(text: str, width_em: float, m: Measure, taj: Tajweed | None) -> Line:
+    """A centred basmala line, coloured like 1:1 in a tajwid book."""
+    units, colours = _units(text, taj.text_colours(text, (1, 1)) if taj else None)
+    return justify(units, width_em, m, centered=True, colours=colours)
+
+
 # ---------------------------------------------------------------- exact-line books
 
 
 def exact_book(content: Content, mushaf_id: str, *, rotated: bool, lines_per_screen: int,
-               width_quantile: float, pitch_em: float, file_name: str, title: str, title_ar: str) -> Book:
+               width_quantile: float, pitch_em: float, file_name: str, title: str, title_ar: str,
+               tajweed: bool = False) -> Book:
     """Printed lines, ``lines_per_screen`` per screen (all of a page when equal
-    to the mushaf's lines per page)."""
+    to the mushaf's lines per page). ``tajweed`` colours the letters by rule."""
     mushaf = content.mushaf(mushaf_id)
     m = measure_for(mushaf)
+    taj = Tajweed(content, mushaf_id) if tajweed else None
     geo = LANDSCAPE if rotated else PORTRAIT
     rows = content.lines(mushaf_id)
     juz_of = content.ayah_juz(mushaf_id)
@@ -256,15 +289,14 @@ def exact_book(content: Content, mushaf_id: str, *, rotated: bool, lines_per_scr
                     has_row = any(x["kind"] == "basmala" and x["surah"] == s for x in lines)
                     bas = None
                     if mushaf.header_basmala and s not in (1, 9) and not has_row:
-                        bas = justify(line_words(mushaf.basmala), width_em / 0.8, m, centered=True)
+                        bas = _basmala(mushaf.basmala, width_em / 0.8, m, taj)
                     screen.rows.append(Row("surah", top, pitch, font, surah=s, basmala=bas))
                 elif r["kind"] == "basmala":
-                    screen.rows.append(Row("basmala", top, pitch, font,
-                                           line=justify(line_words(r["text"]), width_em, m, centered=True)))
+                    screen.rows.append(Row("basmala", top, pitch, font, line=_basmala(r["text"], width_em, m, taj)))
                 else:
-                    units = line_words(r["text"])
+                    units, colours = _units(r["text"], taj.line_colours(page, r["line"]) if taj else None)
                     inset = 0.3 if units and trailing_overhang(units[-1]) else 0.0
-                    ln = justify(units, width_em, m, centered=bool(r["centered"]), right_inset=inset)
+                    ln = justify(units, width_em, m, centered=bool(r["centered"]), right_inset=inset, colours=colours)
                     if not r["centered"]:
                         justified += 1
                         elongated += ln.kashida > 0
@@ -286,9 +318,11 @@ def exact_book(content: Content, mushaf_id: str, *, rotated: bool, lines_per_scr
         "justified_lines": justified, "kashida_lines": elongated, "squeezed_lines": squeezed,
         "min_scale": round(min_scale, 3),
     }
+    if taj:
+        stats["tajweed"] = taj.stats
     return Book(file_name, title, title_ar, "rotated" if rotated else "faithful", mushaf, geo, font / MM_PER_PT,
                 screens, surah_screens, juz_screens, content.surah_pages(mushaf_id),
-                {j: p for j, (_, _, p) in juz_starts.items()}, stats)
+                {j: p for j, (_, _, p) in juz_starts.items()}, stats, tajweed=taj is not None)
 
 
 # ---------------------------------------------------------------- reflow books
@@ -299,6 +333,7 @@ class _Unit:
     text: str
     key: tuple[int, int]
     page_marker: int | None = None
+    colours: list | None = None  # per character, in a tajwid book
 
 
 def page_marker(page: int) -> str:
@@ -320,9 +355,10 @@ class _ReflowMeasure(Measure):
 
 
 def reflow_book(content: Content, mushaf_id: str, *, font_pt: float, pitch_em: float, file_name: str,
-                title: str, title_ar: str) -> Book:
+                title: str, title_ar: str, tajweed: bool = False) -> Book:
     mushaf = content.mushaf(mushaf_id)
     m = _ReflowMeasure(measure_for(mushaf))
+    taj = Tajweed(content, mushaf_id) if tajweed else None
     geo = PORTRAIT
     font = font_pt * MM_PER_PT
     width_em = geo.block_width / font
@@ -343,14 +379,14 @@ def reflow_book(content: Content, mushaf_id: str, *, font_pt: float, pitch_em: f
             s, _, units = surahs[-1]
             surahs[-1] = (s, r["text"], units)
             continue
-        units = line_words(r["text"])
+        units, colours = _units(r["text"], taj.line_colours(r["page"], r["line"]) if taj else None)
         keys = _word_keys((r["first_surah"], r["first_ayah"]), units)
         out = surahs[-1][2]
         for i, (u, k) in enumerate(zip(units, keys)):
             if r["page"] != last_page and i == 0:
                 last_page = r["page"]
                 out.append(_Unit(page_marker(r["page"]), k, r["page"]))
-            out.append(_Unit(u, k))
+            out.append(_Unit(u, k, colours=colours[i] if colours else None))
     # Indopak prints put the basmala in the heading; reflow shows it as a line.
     if mushaf.header_basmala:
         surahs = [(s, b or (mushaf.basmala if s not in (1, 9) else None), u) for s, b, u in surahs]
@@ -380,7 +416,7 @@ def reflow_book(content: Content, mushaf_id: str, *, font_pt: float, pitch_em: f
         place(Row("surah", 0, pitch, font, surah=s))
         surah_screens[s] = len(screens) - 1
         if basmala:
-            place(Row("basmala", 0, pitch, font, line=justify(line_words(basmala), width_em, m, centered=True)))
+            place(Row("basmala", 0, pitch, font, line=_basmala(basmala, width_em, m, taj)))
         # Greedy line breaking at natural spacing; kashida then fills each line.
         i = 0
         while i < len(units):
@@ -401,7 +437,8 @@ def reflow_book(content: Content, mushaf_id: str, *, font_pt: float, pitch_em: f
             natural = sum(m.width(t) for t in texts) + m.space * (len(texts) - 1)
             centered = last and natural < 0.7 * width_em
             inset = 0.3 if trailing_overhang(texts[-1]) else 0.0
-            ln = justify(texts, width_em, m, centered=centered, right_inset=inset)
+            colours = [u.colours for u in chunk] if taj else None
+            ln = justify(texts, width_em, m, centered=centered, right_inset=inset, colours=colours)
             if not centered:
                 justified += 1
                 elongated += ln.kashida > 0
@@ -422,5 +459,8 @@ def reflow_book(content: Content, mushaf_id: str, *, font_pt: float, pitch_em: f
         "lines_per_screen": slots, "justified_lines": justified, "kashida_lines": elongated,
         "squeezed_lines": squeezed,
     }
+    if taj:
+        stats["tajweed"] = taj.stats
     return Book(file_name, title, title_ar, "reflow", mushaf, geo, font_pt, screens, surah_screens, juz_screens,
-                content.surah_pages(mushaf_id), {j: p for j, (_, _, p) in juz_starts.items()}, stats)
+                content.surah_pages(mushaf_id), {j: p for j, (_, _, p) in juz_starts.items()}, stats,
+                tajweed=taj is not None)
