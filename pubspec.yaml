@@ -1,5 +1,5 @@
 name: quran_reader
-description: "Quran Reader: read the Quran page by page in several mushafs."
+description: "Quran Mushafs: read the Quran page by page in several mushafs."
 publish_to: 'none'
 version: 1.0.0+1
 

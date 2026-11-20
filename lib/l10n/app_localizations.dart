@@ -95,7 +95,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Quran Reader'**
+  /// **'Quran Mushafs'**
   String get appTitle;
 
   /// No description provided for @chooseMushaf.
@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutBody.
   ///
   /// In en, this message translates to:
-  /// **'Quran Reader shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.'**
+  /// **'Quran Mushafs shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.'**
   String get aboutBody;
 
   /// No description provided for @sources.

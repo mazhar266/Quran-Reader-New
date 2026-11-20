@@ -255,7 +255,7 @@ def front_matter(book: Book, first_content: int) -> list[str]:
         '<p>The Quran text is reproduced unaltered, free of charge and with attribution. Line filling '
         '(kashida) is typographic only. Fonts: KFGQPC Uthmanic Script; surah-name and ornament fonts '
         'from the Quranic Universal Library; AlQuran IndoPak by QuranWBW.</p>'
-        f'<p>Generated {today} with the Quran Reader book tools.</p>'
+        f'<p>Generated {today} with the Quran Mushafs book tools.</p>'
         '</div></section>'
     )
     if book.tajweed:
@@ -355,7 +355,7 @@ def postprocess(book: Book, raw: Path, out: Path) -> None:
         "/Title": book.title,
         "/Author": "King Fahd Glorious Quran Printing Complex; Quranic Universal Library",
         "/Subject": f"{book.mushaf.id} · {book.mode} · 6in · {book.font_pt:.1f} pt" + (" · tajwid colours" if book.tajweed else ""),
-        "/Creator": "Quran Reader book tools (tools/ereader)",
+        "/Creator": "Quran Mushafs book tools (tools/ereader)",
     })
     writer._root_object[NameObject("/Lang")] = TextStringObject("ar")
     writer.page_mode = "/UseOutlines"

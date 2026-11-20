@@ -1,9 +1,9 @@
-# Quran Reader · planning docs
+# Quran Mushafs · planning docs
 
 A Flutter app for reading the Quran page by page in several mushafs. Reading only: no tafsir, translation or audio.
 
-- App name: **Quran Reader**
-- Application id: `fi.mazhar.quran.reader`
+- App name: **Quran Mushafs** (named Quran Reader until November 2026)
+- Application id: `fi.mazhar.quran.mushaf` (was `fi.mazhar.quran.reader`)
 
 | document | what it answers |
 |---|---|

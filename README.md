@@ -1,9 +1,9 @@
-# Quran Reader
+# Quran Mushafs
 
 A Flutter app for reading the Quran page by page, line by line, exactly as in the printed mushafs.
 Reading only: no tafsir, translation or audio. Fully offline, no data collected.
 
-- Application id: `fi.mazhar.quran.reader`
+- Application id: `fi.mazhar.quran.mushaf`
 - Platforms: Android and iOS
 - UI languages: English and Arabic
 

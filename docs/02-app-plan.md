@@ -1,7 +1,7 @@
-# 02 · App plan: Quran Reader
+# 02 · App plan: Quran Mushafs
 
-- **Name**: Quran Reader
-- **Bundle / application id**: `fi.mazhar.quran.reader`
+- **Name**: Quran Mushafs (planned and first built as Quran Reader)
+- **Bundle / application id**: `fi.mazhar.quran.mushaf` (first built as `fi.mazhar.quran.reader`)
 - **Platform**: Flutter (Android + iOS first; desktop/web later if wanted)
 - **Purpose**: read the Quran page by page in several mushafs, exactly as printed. No tafsir, translation, audio, or study tools in scope. Any such feature is a later, optional add-on.
 
