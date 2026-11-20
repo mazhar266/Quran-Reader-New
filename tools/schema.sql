@@ -1,4 +1,4 @@
--- Content database of Quran Reader (read-only in the app).
+-- Content database of Quran Mushafs (read-only in the app).
 -- Built by `python3 -m tools.build`; see docs/03-data-pipeline.md.
 
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);

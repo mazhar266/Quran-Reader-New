@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Quran Reader';
+  String get appTitle => 'Quran Mushafs';
 
   @override
   String get chooseMushaf => 'Choose a mushaf';
@@ -191,7 +191,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutBody =>
-      'Quran Reader shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.';
+      'Quran Mushafs shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.';
 
   @override
   String get sources => 'Sources and credits';

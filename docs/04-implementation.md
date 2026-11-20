@@ -14,6 +14,7 @@ learned about the data. September 2026.
 | Milestone 4 (app side): about/sources, i18n (en, ar), icons, no network use | done; store listings and signing are the owner's |
 | v1.2: Mushaf Qatar, Indopak 9-line Gaba, two-page spread | done |
 | v1.1: QCF V2 / V4 tajweed font packs | not started (needs a pack host and the COLR spike on devices) |
+| Rename (November 2026): app name Quran Mushafs, application id `fi.mazhar.quran.mushaf` (Android and iOS) | done; the Dart package and the content DB keep their `quran_reader` names |
 | Hizb / rub' navigation | not started (metadata not in `resources/`) |
 
 ## 2. App structure
