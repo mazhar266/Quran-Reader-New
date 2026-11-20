@@ -1,4 +1,4 @@
-package fi.mazhar.quran.reader
+package fi.mazhar.quran.mushaf
 
 import io.flutter.embedding.android.FlutterActivity
 

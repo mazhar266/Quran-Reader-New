@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Quran Reader",
+  "appTitle": "Quran Mushafs",
   "chooseMushaf": "Choose a mushaf",
   "chooseMushafHint": "Each mushaf remembers its own reading position.",
   "continueReading": "Continue reading",
@@ -135,7 +135,7 @@
   "language": "Language",
   "languageSystem": "System language",
   "about": "About",
-  "aboutBody": "Quran Reader shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.",
+  "aboutBody": "Quran Mushafs shows the Quran page by page, line by line, as in the printed mushafs. It works offline and collects no data.",
   "sources": "Sources and credits",
   "fonts": "Fonts",
   "version": "Version {version}",

@@ -10,7 +10,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'قارئ القرآن';
+  String get appTitle => 'مصاحف القرآن';
 
   @override
   String get chooseMushaf => 'اختر المصحف';
@@ -191,7 +191,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutBody =>
-      'يعرض قارئ القرآن المصحف صفحةً صفحة وسطرًا سطرًا كما في المصاحف المطبوعة. يعمل دون اتصال بالإنترنت ولا يجمع أي بيانات.';
+      'يعرض تطبيق مصاحف القرآن المصحف صفحةً صفحة وسطرًا سطرًا كما في المصاحف المطبوعة. يعمل دون اتصال بالإنترنت ولا يجمع أي بيانات.';
 
   @override
   String get sources => 'المصادر والشكر';
