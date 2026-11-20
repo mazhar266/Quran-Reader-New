@@ -25,5 +25,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter analyze
+      # Errors and warnings fail the build; infos do not. Flutter 3.50 deprecates
+      # package:flutter/material.dart in favour of package:material_ui, reported as infos.
+      - run: flutter analyze --no-fatal-infos
       - run: flutter test
